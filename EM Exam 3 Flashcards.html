@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EM Exam 3 Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm study tool, clear and encouraging
+   IDEA: a stack of index cards on graph paper, like an engineer's study desk
+   PICTURE: one big flippable card, the working tool itself
+   COLOUR and TYPE: graph-paper ice ground, ink, one hot-pink accent for "missed"; Space Grotesk + Inter
+   LAYOUT: deck chips, progress, the card, then the two judge buttons, one column */
+:root{color-scheme:light dark;
+--bg:light-dark(#dff1f7,#06222e);--ink:light-dark(#06222e,#e6f4f9);--card:light-dark(#ffffff,#0d3242);
+--line:light-dark(#c3e2ec,#0f3a4b);--muted:light-dark(#47636e,#9cc0cc);--hot:#ff2e7e;--ok:light-dark(#0a8a5a,#3fd49a);
+--back:light-dark(#06222e,#e6f4f9);--backink:light-dark(#e6f4f9,#06222e)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip;
+background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:24px 24px;min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding:clamp(20px,4vw,48px) max(4vw,14px) 48px}
+h1{font:600 clamp(28px,5vw,40px)/1.05 "Space Grotesk",sans-serif;margin:0 0 6px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 20px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+.chip{min-height:44px;padding:8px 16px;border-radius:999px;border:1.5px solid var(--ink);background:var(--card);font-weight:500}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.chip small{opacity:.7;margin-left:4px}
+.prog{display:flex;align-items:center;gap:12px;margin-bottom:14px;font-size:14px;color:var(--muted)}
+.bar{flex:1;height:8px;background:var(--card);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:var(--ok);transition:width .3s}
+.stage{perspective:1400px}
+.card{position:relative;width:100%;min-height:360px;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1);cursor:pointer;border:0;padding:0;background:none;text-align:left;display:block}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;padding:clamp(20px,4vw,36px);display:flex;flex-direction:column;box-shadow:0 2px 0 rgba(6,34,46,.15),0 14px 34px rgba(6,34,46,.18);overflow:auto}
+.front{background:var(--card);border-top:6px solid var(--hot)}
+.front::before{content:"";position:absolute;left:0;right:0;top:64px;bottom:0;background:repeating-linear-gradient(transparent 0 31px,var(--line) 31px 32px);pointer-events:none;opacity:.6;border-radius:0 0 16px 16px}
+.back{background:var(--back);color:var(--backink);transform:rotateY(180deg)}
+.tag{font-size:13px;font-weight:600;color:var(--hot);margin-bottom:12px;position:relative}
+.back .tag{color:var(--hot)}
+.q{font:500 clamp(20px,3.4vw,26px)/1.3 "Space Grotesk",sans-serif;position:relative;margin:auto 0}
+.a{font-size:17px;line-height:1.6;margin:auto 0}
+.a b{font-weight:600}.a .big{display:block;font:600 clamp(19px,3vw,23px)/1.35 "Space Grotesk",sans-serif;margin-bottom:10px}
+.a ul{margin:6px 0 0;padding-left:20px}.a li{margin:3px 0}
+.hint{font-size:13px;color:var(--muted);position:relative;margin-top:14px}
+.back .hint{color:inherit;opacity:.6}
+.judge{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.judge button{min-height:52px;border-radius:12px;font-weight:600;font-size:16px;border:2px solid}
+.miss{background:var(--card);border-color:var(--hot)!important;color:var(--hot)!important}
+.got{background:var(--ok);border-color:var(--ok)!important;color:#fff!important}
+.judge2{display:grid;gap:10px;margin-top:18px}
+.jrow{display:grid;grid-template-columns:6.5em 1fr 1fr;gap:10px;align-items:center;background:var(--card);border-radius:12px;padding:8px 10px}
+.jrow span{font-weight:600}
+.jrow button{min-height:46px;border-radius:10px;font-weight:600;font-size:15px;border:2px solid}
+.jrow .miss[aria-pressed=true]{background:var(--hot);color:#fff!important}
+.jrow .got{background:var(--card);color:var(--ok)!important}
+.jrow .got[aria-pressed=true]{background:var(--ok);color:#fff!important}
+.part{margin-bottom:14px}.part small{display:block;font-size:13px;font-weight:600;color:var(--hot);margin-bottom:2px}
+.tally{display:flex;flex-wrap:wrap;gap:6px 20px;justify-content:center;color:var(--muted)}
+.chips.sub:empty{display:none}.chips.sub{margin-top:-6px}.chips.sub .chip{min-height:40px;padding:6px 13px;font-size:14px;border-width:1px}
+.opts{list-style:none;padding:0;margin:14px 0 0;font:400 16px/1.45 Inter,sans-serif;display:grid;gap:6px}.opts li{background:light-dark(#f2f9fb,#123d4f);border-radius:8px;padding:7px 10px}.opts b{color:var(--hot);margin-right:6px}
+.nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;margin-top:12px}
+.nav button{min-height:44px;padding:8px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);font-size:15px}
+.done{text-align:center;background:var(--card);border-radius:16px;padding:40px 24px;box-shadow:0 14px 34px rgba(6,34,46,.18)}
+.done h2{font:600 30px/1.1 "Space Grotesk",sans-serif;margin:0 0 8px}
+.done .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px}
+.done button{min-height:48px;padding:10px 18px;border-radius:12px;border:2px solid var(--ink);background:var(--card);font-weight:600}
+.done button.pri{background:var(--hot);border-color:var(--hot);color:#fff}
+.keys{font-size:13px;color:var(--muted);margin-top:18px;text-align:center}
+kbd{font:inherit;border:1px solid var(--line);border-radius:4px;padding:0 5px;background:var(--card)}
+#find{width:100%;min-height:48px;font:inherit;font-size:16px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);margin-bottom:12px}
+.sheet{background:var(--card);border-radius:16px;padding:6px 14px;box-shadow:0 14px 34px rgba(6,34,46,.14)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;font-size:13px;color:var(--muted);font-weight:600;padding:10px 8px;border-bottom:2px solid var(--ink)}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.sy{font:600 20px/1.2 "Space Grotesk",sans-serif;white-space:nowrap}
+td.un{white-space:nowrap;color:var(--muted)}
+tr.grp td{font:600 15px "Space Grotesk",sans-serif;color:var(--hot);padding-top:18px;border-bottom:1px solid var(--hot)}
+@media(max-width:600px){.card{min-height:420px}.keys{display:none}
+table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:6.5em;text-align:start;white-space:normal}.stack td::before{content:attr(data-l);float:inline-start;width:6em;margin-inline-start:-6.5em;color:var(--muted);font:500 13px Inter,sans-serif}.stack tr.grp td{padding-inline-start:0}.stack tr.grp td::before{content:none}}
+@media(prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ELEE 4020 · Exam 3 flashcards</h1>
+  <p class="sub">Tap the card to flip it. Then mark whether you knew it — missed cards come back until you've got them all.</p>
+  <div class="chips" id="chips"></div><div class="chips sub" id="dates"></div>
+  <div class="prog"><span id="count"></span><div class="bar"><i id="fill"></i></div><span id="known"></span></div>
+  <div id="main"></div>
+  <div class="keys"><kbd>Space</kbd> flip · <kbd>1</kbd> missed it · <kbd>2</kbd> got it · <kbd>←</kbd><kbd>→</kbd> move</div>
+</div>
+<script>
+{
+const D=[
+// ---- Worked problems
+['prob','Problem 1 · Induced emf','Square loop (10 cm × 10 cm) in the y–z plane, near edge 5 cm from a long wire on the z-axis. I(t) = 5 cos(2π×10⁴ t). Find the emf across a small gap.',
+`<span class="big">V<sub>emf</sub> ≈ 6.9 sin(2π×10⁴ t) mV</span>
+<ul><li>Wire field: B = μ₀I / (2πy)</li>
+<li>Flux: Φ = ∫∫ B dy dz = (μ₀ I h / 2π) · ln(15/5), h = 0.1 m</li>
+<li>Φ = (2×10⁻⁷)(0.1)(ln 3) I ≈ 2.2×10⁻⁸ I</li>
+<li>V = −dΦ/dt = 2.2×10⁻⁸ · 5 · (2π×10⁴) sin(ωt) ≈ 6.9×10⁻³ sin(ωt) V</li></ul>`],
+['prob','Problem 2 · Plane wave in εᵣ = 9','E = x̂ 100 cos(1.2π×10¹⁰ t + kz) V/m, nonmagnetic, εᵣ = 9. Find f, uₚ, λ, k, η, H.',
+`<ul><li><b>f</b> = ω/2π = <b>6 GHz</b></li>
+<li><b>uₚ</b> = c/√εᵣ = 3×10⁸/3 = <b>1×10⁸ m/s</b></li>
+<li><b>λ</b> = uₚ/f = <b>1.67 cm</b></li>
+<li><b>k</b> = ω/uₚ = <b>120π ≈ 377 rad/m</b></li>
+<li><b>η</b> = 377/√εᵣ = <b>40π ≈ 125.7 Ω</b></li>
+<li>“+kz” → travels <b>−z</b>. H = (1/η) k̂ × E, with (−ẑ) × x̂ = −ŷ</li>
+<li><b>H = −ŷ 0.796 cos(1.2π×10¹⁰ t + 120πz) A/m</b></li></ul>`],
+['prob','Problem 3a · Polarization','E = (x̂ + j ẑ) e^(−jky)',`<span class="big">Right-hand circular (RHC), traveling +y</span>Equal amplitudes, 90° apart → circular. e^(−jky) → +y. Tip rotates from x̂ toward −ẑ; that rotation axis points +ŷ = direction of travel → right-handed.`],
+['prob','Problem 3b · Polarization','E = (x̂ + j ẑ) e^(+jky)',`<span class="big">Left-hand circular (LHC), traveling −y</span>Same rotation as (a) (axis +ŷ), but the wave now goes −y, so handedness flips.`],
+['prob','Problem 3c · Polarization','H = (j x̂ + ŷ) e^(−jkz)',`<span class="big">Right-hand circular (RHC), traveling +z</span>Leading component is ŷ, then x̂ lags by 90°. Tip rotates ŷ → −x̂, axis = +ẑ = direction of travel → RHC. (E has the same handedness as H.)`],
+['prob','Problem 3d · Polarization','E = (x̂ − ŷ) e^(−jkz)',`<span class="big">Linear (at −45°), traveling +z</span>Components in phase (just opposite signs) → the tip moves along one line, x̂ − ŷ.`],
+['prob','Problem 3e · Polarization','E = 100 j (x̂ − ŷ) e^(+jkz)',`<span class="big">Linear (at −45°), traveling −z</span>The overall j is a common phase shift on both components — it doesn’t change polarization.`],
+['prob','Problem 4 · Good conductor range','Dry soil: εᵣ = 3, μᵣ = 1, σ = 10⁻⁴ S/m. When is it a good conductor?',
+`<span class="big">f &lt; about 6 kHz</span>
+<ul><li>Good conductor: σ/(ωε) &gt; 100</li>
+<li>ω &lt; σ / (100 · 3ε₀) = 10⁻⁴ / (100 · 2.66×10⁻¹¹) ≈ 3.77×10⁴ rad/s</li>
+<li>f = ω/2π ≈ 6×10³ Hz</li></ul>`],
+// ---- Short answers
+['short','5a · Induction','What physical principle explains the induced current when the flux through a loop changes?',`<span class="big">Faraday’s law of induction</span>A changing magnetic flux induces an emf: V<sub>emf</sub> = −dΦ/dt.`],
+['short','5b · Motional emf','A conducting rod moves through a constant B. What causes the voltage across it?',`<span class="big">The magnetic force on its moving charges</span>F = q(u × B) pushes charges to one end → motional emf, V = ∫(u × B)·dl.`],
+['short','5c · Lenz’s law','How does the induced current’s direction relate to the change in flux?',`<span class="big">It opposes the change</span>The induced current makes its own B field that fights the change in flux (the minus sign in Faraday’s law).`],
+['short','5d · Flux','If a loop’s normal is perpendicular to B, what is the flux?',`<span class="big">Zero</span>Φ = B·A = BA cos 90° = 0.`],
+['short','5e · Maxwell','What was Maxwell’s key addition to Ampère’s law?',`<span class="big">Displacement current, ∂D/∂t</span>∇ × H = J + ∂D/∂t.`],
+['short','5f · AC motor','In an AC motor, what is the main job of the magnetic field?',`<span class="big">To produce torque</span>The (rotating) magnetic field pushes on current-carrying conductors, turning electrical energy into mechanical rotation.`],
+['short','5g · Two currents','Conduction current vs. displacement current in a conductor?',`<span class="big">Moving charges vs. changing E field</span><ul><li>Conduction: real charge flow, J = σE</li><li>Displacement: J<sub>d</sub> = ∂D/∂t, from a time-varying E (no charge moves)</li><li>In a good conductor conduction current dominates (σ ≫ ωε)</li></ul>`],
+['short','5h · Boundary','At the boundary between two dielectrics, what must E satisfy?',`<span class="big">Tangential E is continuous</span>E<sub>1t</sub> = E<sub>2t</sub>. (Normal D jumps by any surface charge: D<sub>1n</sub> − D<sub>2n</sub> = ρ<sub>s</sub>.)`],
+['short','5i · Finite speed','Why don’t EM waves propagate instantaneously?',`<span class="big">They travel at a finite speed</span>u = 1/√(με) — set by the medium’s μ and ε (c in vacuum).`],
+['short','5j · Phase delay','What’s the significance of phase delay in wave propagation?',`<span class="big">It shows the wave takes time to travel</span>The field at a distance R reflects the source at an earlier time (t − R/u); phase changes by kR with distance.`],
+['short','5k · Non-conservative E','Why is E not conservative in time-varying cases?',`<span class="big">Because ∇ × E = −∂B/∂t ≠ 0</span>The loop integral of E isn’t zero (it equals the induced emf).`],
+['short','5l · Only E needed','Why is it often enough to apply boundary conditions only to E?',`<span class="big">E and H are locked together</span>Through Maxwell’s equations / intrinsic impedance (H = k̂ × E / η), so once E is set, H follows.`],
+['short','5m · γ','What does the propagation constant γ represent?',`<span class="big">γ = α + jβ</span>How the wave changes as it travels: α = attenuation (Np/m), β = phase constant (rad/m).`],
+['short','5n · E, H, k','Relationship between E, H, and direction of propagation k in a plane wave?',`<span class="big">All three are mutually perpendicular</span>E × H points along k̂. H = (1/η) k̂ × E.`],
+['short','5o · TEM','What does “TEM” stand for?',`<span class="big">Transverse ElectroMagnetic</span>E and H are both perpendicular to the direction of travel.`],
+['short','5p · η','What is the intrinsic impedance η, and how does it relate E and H?',`<span class="big">η = E/H = √(μ/ε)  (Ω)</span>Ratio of the E and H amplitudes. Free space: η₀ ≈ 377 Ω = 120π.`],
+['short','5q · Poynting vector','Physical meaning of the Poynting vector S?',`<span class="big">Power flow density (W/m²)</span>S = E × H — rate and direction of energy flow.`],
+['short','5r · ½ Re{ }','Why take the real part and divide by 2 for average power?',`<span class="big">S<sub>av</sub> = ½ Re{Ẽ × H̃*}</span>Real part: the physical fields are the real part of the phasors (the imaginary part is stored/reactive power). ½: the time average of cos² over a cycle is ½.`],
+['short','5s · Complex ε','What does a complex permittivity ε<sub>c</sub> tell you about a medium?',`<span class="big">The medium is lossy</span>ε<sub>c</sub> = ε′ − jε″, with ε″ = σ/ω representing loss (absorption).`],
+['short','5t · Skin depth','Define skin depth δₛ.',`<span class="big">δₛ = 1/α</span>The depth where the amplitude falls to 1/e (≈37%) of its surface value. Good conductor: δₛ = 1/√(πfμσ).`],
+['short','5u · α vs δₛ','What happens to skin depth as α increases?',`<span class="big">It decreases</span>δₛ = 1/α — more attenuation, shallower penetration.`],
+['short','5v · Classifying','Which parameter decides low-loss dielectric vs. quasiconductor vs. good conductor?',`<span class="big">Loss ratio ε″/ε′ = σ/(ωε)</span><ul><li>&lt; 0.01 → low-loss dielectric</li><li>0.01 – 100 → quasiconductor</li><li>&gt; 100 → good conductor</li></ul>`],
+['short','5w · Dry soil vs f','How does dry soil’s classification change from 60 Hz to 1 GHz?',`<span class="big">Good conductor → quasiconductor → low-loss dielectric</span>σ/(ωε) shrinks as f grows (≈10⁴ at 60 Hz, ≈6×10⁻⁴ at 1 GHz).`],
+['short','5x · uₚ vs c','Relationship between phase velocity in a material and c?',`<span class="big">uₚ = c / √(μᵣεᵣ)</span>Slower than light in vacuum for ordinary materials.`],
+['short','5y · Raising εᵣ','Effect of increasing εᵣ on wavelength?',`<span class="big">Wavelength gets shorter</span>λ = λ₀ / √εᵣ.`],
+['short','5z · Air → material','What happens to frequency when a wave goes from air into a material?',`<span class="big">Frequency stays the same</span>Only speed and wavelength change.`],
+['short','5aa · Polarization','Define polarization of an EM wave.',`<span class="big">The path traced by the tip of E over time</span>At a fixed point, in the plane perpendicular to propagation.`],
+['short','5bb · 0° phase','X and Y components with zero phase difference → which polarization?',`<span class="big">Linear</span>`],
+['short','5cc · 90° phase','Equal-amplitude X and Y components, 90° apart → effect?',`<span class="big">Circular polarization</span>RHC or LHC depending on which component leads.`],
+['short','5dd · Everything else','Unequal amplitudes and phase not 0° or 90° → which polarization?',`<span class="big">Elliptical</span>`],
+// ---- Formulas
+['form','Formula','Faraday’s law (emf)',`<span class="big">V<sub>emf</sub> = −dΦ/dt = −d/dt ∫ B·ds</span>Transformer emf (B changing) + motional emf ∫(u × B)·dl.`],
+['form','Formula','B field of a long straight wire',`<span class="big">B = μ₀ I / (2πr)</span>Circles the wire (right-hand rule). μ₀/2π = 2×10⁻⁷.`],
+['form','Formula','Lossless wave parameters',`<ul><li>uₚ = c/√εᵣ (nonmagnetic)</li><li>k = ω/uₚ = 2π/λ</li><li>λ = uₚ/f = λ₀/√εᵣ</li><li>η = η₀/√εᵣ, η₀ ≈ 377 Ω</li></ul>`],
+['form','Formula','Reading direction of travel from the phase',`<ul><li>cos(ωt − kz) or e^(−jkz) → <b>+z</b></li><li>cos(ωt + kz) or e^(+jkz) → <b>−z</b></li></ul>`],
+['form','Formula','H from E for a plane wave',`<span class="big">H = (1/η) k̂ × E</span>and E = −η k̂ × H. Check: E × H must point along k̂.`],
+['form','Trick','Fast handedness check for E = â₁ + j â₂',`<ul><li>Tip goes â₁ → −â₂, so rotation axis = â₂ × â₁</li><li>Axis same as direction of travel → <b>RHC</b></li><li>Axis opposite → <b>LHC</b></li></ul>`],
+['form','Formula','Good-conductor skin depth & α',`<span class="big">α = √(πfμσ), δₛ = 1/α</span>`],
+];
+const SYM=[
+// [symbol, name, units, what it means / when to use]
+['Fields & sources','','',''],
+['E','Electric field intensity','V/m','The wave’s electric field. Given in most wave problems; H comes from it.'],
+['H','Magnetic field intensity','A/m','The wave’s magnetic field. H = (1/η) k̂ × E.'],
+['B','Magnetic flux density','T (= Wb/m²)','What you integrate for flux. B = μH. Wire: B = μ₀I/(2πr).'],
+['D','Electric flux density','C/m²','D = εE. Shows up in displacement current ∂D/∂t and boundary conditions.'],
+['Φ','Magnetic flux','Wb','Total B through a loop: Φ = ∫ B·ds. Its change makes emf.'],
+['V<sub>emf</sub>','Electromotive force (induced voltage)','V','V<sub>emf</sub> = −dΦ/dt (Faraday). Answer to Problem 1.'],
+['I','Current','A','Source current, e.g. the long wire in Problem 1.'],
+['J','Conduction current density','A/m²','J = σE — real charges moving.'],
+['J<sub>d</sub>','Displacement current density','A/m²','J<sub>d</sub> = ∂D/∂t — from a changing E, no charges move.'],
+['ρ<sub>s</sub>','Surface charge density','C/m²','Appears in the normal-D boundary condition.'],
+['u','Velocity of a moving conductor','m/s','Motional emf: ∫(u × B)·dl.'],
+['ds, dl','Surface / length element','m², m','ds for flux integrals, dl for line (emf) integrals.'],
+['Material properties','','',''],
+['ε','Permittivity','F/m','ε = εᵣε₀. How the material responds to E.'],
+['ε₀','Permittivity of free space','F/m','8.854 × 10⁻¹² F/m.'],
+['εᵣ','Relative permittivity (dielectric constant)','none','Given in problems (εᵣ = 9, εᵣ = 3). Slows the wave: uₚ = c/√εᵣ.'],
+['μ','Permeability','H/m','μ = μᵣμ₀.'],
+['μ₀','Permeability of free space','H/m','4π × 10⁻⁷ H/m. Handy: μ₀/2π = 2 × 10⁻⁷.'],
+['μᵣ','Relative permeability','none','“Nonmagnetic” means μᵣ = 1.'],
+['σ','Conductivity','S/m','How lossy the material is. Used in σ/(ωε).'],
+['ε<sub>c</sub>','Complex permittivity','F/m','ε<sub>c</sub> = ε′ − jε″. Means the medium has loss.'],
+['ε′','Real part of ε<sub>c</sub>','F/m','Equals ε — stores energy.'],
+['ε″','Imaginary part of ε<sub>c</sub>','F/m','ε″ = σ/ω — the loss part.'],
+['ε″/ε′','Loss tangent','none','= σ/(ωε). &lt; 0.01 low-loss dielectric; 0.01–100 quasiconductor; &gt; 100 good conductor.'],
+['Wave quantities','','',''],
+['f','Frequency','Hz','f = ω/2π. Never changes between materials.'],
+['ω','Angular frequency','rad/s','The number multiplying t inside cos( ). ω = 2πf.'],
+['T','Period','s','T = 1/f.'],
+['λ','Wavelength','m','λ = uₚ/f = 2π/k. In a material λ = λ₀/√εᵣ.'],
+['λ₀','Free-space wavelength','m','λ₀ = c/f.'],
+['k','Wavenumber (= β in lossless media)','rad/m','The number multiplying z (or y) in the phase. k = ω/uₚ = 2π/λ.'],
+['k̂','Unit vector of propagation','none','Direction the wave travels (read from the sign of kz).'],
+['α','Attenuation constant','Np/m','How fast the amplitude decays: e^(−αz).'],
+['β','Phase constant','rad/m','How fast the phase changes with distance.'],
+['γ','Propagation constant','1/m','γ = α + jβ.'],
+['uₚ','Phase velocity','m/s','uₚ = 1/√(με) = c/√(μᵣεᵣ).'],
+['c','Speed of light in vacuum','m/s','3 × 10⁸ m/s.'],
+['n','Index of refraction','none','n = √εᵣ (nonmagnetic).'],
+['η','Intrinsic impedance','Ω','η = E/H = √(μ/ε). In a dielectric η = η₀/√εᵣ.'],
+['η₀','Impedance of free space','Ω','≈ 377 Ω = 120π.'],
+['δₛ','Skin depth','m','δₛ = 1/α. Depth where the amplitude drops to 1/e (37%).'],
+['S','Poynting vector','W/m²','S = E × H — power flow, points along k̂.'],
+['S<sub>av</sub>','Average power density','W/m²','S<sub>av</sub> = ½ Re{Ẽ × H̃*}.'],
+['Notation & polarization','','',''],
+['x̂, ŷ, ẑ','Unit vectors','none','Directions of the field components and of travel.'],
+['Ẽ, H̃','Phasor (tilde)','—','Complex form of a field, time factor e^(jωt) dropped. Real field = Re{Ẽ e^(jωt)}.'],
+['H̃*','Complex conjugate','—','Flip the sign of every j. Used in S<sub>av</sub>.'],
+['j','Imaginary unit √−1','—','In a polarization vector, j = a 90° phase shift between components.'],
+['e^(−jkz)','Phase term','—','Minus sign → travels +z. Plus sign → travels −z.'],
+['δ','Phase difference between components','rad or °','0° or 180° → linear; ±90° with equal amplitudes → circular; else elliptical.'],
+['RHC / LHC','Right- / left-hand circular','—','Thumb along travel: fingers curl the way E rotates → RHC; opposite → LHC.'],
+];
+SYM.filter(s=>s[1]).forEach(s=>D.push(['sym','Symbol',`<span style="font-size:clamp(40px,8vw,64px);display:block;line-height:1.1">${s[0]}</span>What is this symbol, and what are its units?`,`<div class="part"><small>Definition</small><span class="big">${s[1]}</span>${s[3]}</div><div class="part"><small>Units</small><span class="big">${s[2]}</span></div>`]));
+const WU=[
+// [date, Q#, question, [A,B,C,D], correct index, why]
+['10/09','1','A magnetic field is produced by:',['Stationary charges','Moving charges','Neutral particles only','Dielectrics'],1,'Magnetic fields come from charges in motion (currents).'],
+['10/09','2','Why can a permanent magnet produce a magnetic field?',['It contains static electric charges','Its atoms contain moving electrons whose magnetic moments align','It has infinite conductivity','It contains dielectric polarization'],1,'Electron motion in atoms gives tiny magnetic moments; in a magnet they line up.'],
+['10/09','3','Which parameter characterizes the magnetic properties of a material?',['Conductivity (σ)','Permittivity (ε)','Permeability (μ)','Resistance (R)'],2,'μ is the magnetic material property (B = μH).'],
+['10/09','4','The Lorentz magnetic force acting on a charge is:',['qE','q(u × B)','IL','ρᵥE'],1,'F<sub>m</sub> = q(u × B).'],
+['10/09','6','The magnetic force is maximum when the angle between velocity and magnetic field is:',['0°','30°','45°','90°'],3,'|F| = quB sin θ, largest at θ = 90°.'],
+['10/09','7','The magnetic force is zero when the velocity and magnetic field are:',['Perpendicular','Parallel','Opposite charges interact','Time-varying'],1,'sin 0° = 0, so u ∥ B gives no force.'],
+['10/09','11','For a negative charge, the force direction is:',['Same as u × B','Opposite to u × B','Always upward','Always downward'],1,'F = q(u × B) with q &lt; 0 flips the direction.'],
+['10/09','12','A magnetic field does no work on a moving charge because:',['Magnetic fields have no energy','Charges do not move in magnetic fields','The force is perpendicular to displacement','Magnetic fields are conservative'],2,'F ⊥ u, so F·dl = 0 — speed doesn’t change, only direction.'],
+['10/09','13','The force on a differential current element is:',['dF = I dL × B','dF = qE','dF = V dQ','dF = I dL'],0,'dF = I dL × B.'],
+['10/09','15','For a closed current loop in a uniform magnetic field, the net force is:',['Positive','Negative','Infinite','Zero'],3,'∮ I dL × B = I(∮dL) × B = 0 in a uniform field.'],
+['10/09','16','Although the net force on a closed loop is zero, the loop may experience:',['Voltage','Resistance','Torque','Charge accumulation'],2,'Forces on opposite sides can form a couple → torque (how motors turn).'],
+['10/09','20','The magnetic dipole moment of a coil is:',['NB','NIA n̂','IB','μH'],1,'m = N I A n̂ (turns × current × area).'],
+['10/09','21','The direction of the magnetic dipole moment is determined using:',['Fleming’s left-hand rule','Right-hand grip rule','Gauss’s law','Lenz’s law'],1,'Curl fingers with the current; thumb points along m.'],
+['10/14','1','The Biot–Savart law is primarily used to determine:',['Electric potential from a charge distribution','Magnetic field produced by a current distribution','Force between two stationary charges','Capacitance of a conductor'],1,'Biot–Savart gives H (or B) from a current distribution.'],
+['10/14','10','Gauss’s law for magnetism states that the total magnetic flux through any closed surface is:',['Equal to the enclosed charge','Equal to the enclosed current','Zero','Infinite'],2,'∮ B·ds = 0.'],
+['10/14','11','The physical interpretation of ∇·B = 0 is that:',['Magnetic fields cannot exert forces','Magnetic monopoles do not appear as isolated sources or sinks of magnetic field','Magnetic fields exist only inside conductors','Magnetic fields must always be uniform'],1,'No magnetic monopoles — field lines always close on themselves.'],
+['10/14','12','Why is the net magnetic flux through a closed surface surrounding part of a magnet zero?',['The magnetic field is zero everywhere on the surface','The magnetic permeability is zero','Magnetic field entering the surface is balanced by magnetic field leaving it','The magnet carries no current'],2,'Every line that goes in comes back out.'],
+['10/14','13','For magnetostatic problems, Ampère’s law relates the closed line integral of H to:',['Enclosed electric charge','Enclosed current','Magnetic flux','Electric potential'],1,'∮ H·dl = I<sub>enc</sub>.'],
+['10/14','14','If an Amperian loop encloses no net current, which statement is correct?',['H must be zero at every point on the loop','The closed line integral of H is zero','The magnetic flux must be nonzero','The electric field must be zero'],1,'Only the integral is zero; H itself can be nonzero.'],
+['10/14','15','Equal currents I pass through an Amperian surface in opposite directions. What is the net enclosed current?',['2I','I','−I','0'],3,'+I − I = 0.'],
+['10/14','23','In the idealized toroid discussed in lecture, the magnetic field is approximately zero:',['Only inside the core','Only outside the toroid','Both in the central region and outside the toroid','Everywhere'],2,'Amperian loops there enclose zero net current; H only lives inside the core.'],
+['10/14','24','Which situation is best suited for direct use of Ampère’s law to find the magnetic field?',['An arbitrarily bent short wire','An infinitely long straight current-carrying wire','A randomly shaped loop at an arbitrary point','Several unrelated short wire segments'],1,'Ampère’s law needs symmetry so H is constant around the loop.'],
+['10/14','25','Net enclosed current is zero but H is nonzero at points along the loop. Which conclusion is correct?',['Ampère’s law has been violated','The magnetic field must actually be zero','A zero closed line integral does not require the field to be zero everywhere along the path','The enclosed current must be nonzero'],2,'Positive and negative contributions can cancel in the integral.'],
+['10/14','—','An unmagnetized piece of ferromagnetic iron has many domains. Which describes its microscopic state?',['Each domain has zero magnetic moment','All domains are aligned in the same direction','Moments are aligned within individual domains, but the domains point different ways','Electrons stop producing magnetic moments'],2,'Random domain directions cancel → no net magnetization.'],
+['10/14','—','An external field is applied to an unmagnetized ferromagnetic material. What mainly increases its net magnetization?',['New electrons are generated','Magnetic domains increasingly align with the applied field','The permeability decreases to zero','Positive and negative magnetic poles separate'],1,'Domains aligned with H grow / rotate.'],
+['10/14','—','A ferromagnet is magnetized, then H is reduced to zero, but B stays nonzero. What does this show?',['The material has residual magnetization','Ampère’s law is violated','The permeability must be zero','The material cannot be ferromagnetic'],0,'Remanence (hysteresis) — some alignment stays.'],
+['10/14','—','μᵣ: A = 0.9998, B = 1.0005, C = 800. Which is most likely ferromagnetic?',['Material A','Material B','Material C','All three'],2,'Ferromagnetic μᵣ ≫ 1. (A: diamagnetic, B: paramagnetic.)'],
+['10/14','—','Domains strongly align with an applied field and some alignment remains after it’s removed. What type of material?',['Diamagnetic','Paramagnetic','Ferromagnetic','Dielectric'],2,'Strong alignment + memory = ferromagnetic.'],
+['11/04','1','Faraday’s law states that an induced EMF is produced by:',['A constant electric field','A change in magnetic flux','A constant magnetic flux','Electric charge alone'],1,'Only a changing flux induces EMF.'],
+['11/04','2','Magnetic flux through a surface is generally expressed as:',['Φ = ∫ B·dS','Φ = ∫ E·dS','Φ = ∮ B·dl','Φ = B × S'],0,'Surface integral of B·dS.'],
+['11/04','3','Which component of B contributes to flux through a surface?',['The component tangent to the surface','The component along the surface normal','Every component equally','Only the x-component'],1,'Only the normal part passes through.'],
+['11/04','4','Circular loop radius a in the xy-plane, B = B₀(2ŷ + 3ẑ) sin(ωt). Flux through one turn?',['2B₀πa² sin(ωt)','3B₀πa² sin(ωt)','3B₀πa sin(ωt)','B₀πa² cos(ωt)'],1,'Only the ẑ (normal) part counts: 3B₀ sin(ωt) · πa².'],
+['11/04','5','Transformer EMF for an N-turn coil:',['V = NΦ','V = N dΦ/dt','V = −N dΦ/dt','V = −Φ/N'],2,'V = −N dΦ/dt; minus sign = Lenz.'],
+['11/04','6','The negative sign in Faraday’s law represents:',['Ohm’s law','Gauss’s law','Lenz’s law','Coulomb’s law'],2,'Induced EMF opposes the change in flux.'],
+['11/04','7','According to Lenz’s law, the induced current:',['Supports the change in flux','Opposes the change in flux','Always flows clockwise','Always flows counterclockwise'],1,'Opposes the change (not the flux itself).'],
+['11/04','8','Flux out of the page is decreasing. The induced current creates a field:',['Into the page','Out of the page','Parallel to the loop','Equal to zero'],1,'It tries to replace the lost out-of-page flux.'],
+['11/04','9','If the induced field must point out of the page, the induced current flows:',['Clockwise','Counterclockwise','Radially outward','Radially inward'],1,'Right-hand rule: out of page ↔ counterclockwise.'],
+['11/04','10','A stationary loop in a time-varying magnetic field produces primarily:',['Motional EMF','Transformer EMF','Electrostatic EMF','No EMF'],1,'Loop still, B changing → transformer EMF.'],
+['11/04','11','A loop rotating in a constant B produces EMF because:',['The field magnitude must change','The resistance changes','The angle between B and the surface normal changes','The electron charge changes'],2,'Φ = BS cos θ, and θ changes.'],
+['11/04','12','Motional EMF results fundamentally from which force on moving charges?',['Gravitational','Magnetic Lorentz force','Electrostatic only','Nuclear'],1,'q(u × B).'],
+['11/04','13','A useful expression for motional EMF around a conducting path:',['V = ∮(u × B)·dl','V = ∮(u·B) dl','V = ∫ B·dS','V = IR²'],0,'Line integral of (u × B).'],
+['11/04','14','Ideal transformer voltage ratio vs. turns ratio:',['V₂/V₁ = N₁/N₂','V₂/V₁ = N₂/N₁','V₂/V₁ = N₁N₂','V₂/V₁ = 1/(N₁N₂)'],1,'Voltage scales with turns.'],
+['11/04','15','In an ideal transformer, raising the secondary voltage makes the secondary current:',['Increase proportionally','Decrease','Stay the same','Become zero'],1,'Power conserved: V₁I₁ = V₂I₂.'],
+['11/04','16','A generator primarily converts:',['Electrical → mechanical','Mechanical → electrical','Magnetic energy → mass','Thermal → magnetic flux'],1,'Rotation changes flux → EMF.'],
+['11/04','17','An electric motor primarily converts:',['Electrical → mechanical','Mechanical → electrical','Flux → resistance','Charge → magnetic charge'],0,'Current loop in B feels torque.'],
+['11/04','18','Why does current seem to flow through a capacitor even though no charge crosses the dielectric?',['Electrons jump across','A changing E field produces displacement current','The capacitor has zero resistance','The magnetic field disappears'],1,'∂D/∂t keeps the current continuous.'],
+['11/04','19','Maxwell modified Ampère’s law by introducing:',['Magnetic charge','Transformer resistance','Displacement current','Motional resistance'],2,'∇ × H = J + ∂D/∂t.'],
+['11/04','20','Which best describes the relationship Maxwell’s equations give for time-varying fields?',['Changing B makes E, and changing E makes B','E and B are independent','Only changing E generates fields','No fields without conduction current'],0,'That mutual coupling is what makes EM waves.'],
+['11/04','Bonus','A strong magnet is dropped down a vertical copper tube. How does it fall?',['Free fall — copper isn’t magnetic','Terminal speed — eddy currents oppose the flux change','Faster than free fall','It stops at once'],1,'Lenz’s law drag grows with speed until it balances gravity.'],
+['11/04','Bonus 2','Why are transformer cores made of thin insulated laminations?',['Increases permeability','Stops domain rotation to cut hysteresis','Restricts eddy currents to small high-resistance loops, cutting heat loss','Eliminates induced EMF'],2,'Smaller eddy loops → less I²R heating.'],
+['11/06','1','Maxwell modified Ampère’s law by introducing which concept?',['Magnetic surface charge','Displacement current','Magnetic resistance','Electrostatic potential'],1,'∂D/∂t lets a changing E produce H.'],
+['11/06','2','Which expression is conduction current density in a conducting medium?',['J = εE','J = σE','J = μH','J = ωεE'],1,'Point-form Ohm’s law.'],
+['11/06','3','In the ideal dielectric between capacitor plates, the current is treated as:',['Conduction current','Eddy current','Displacement current','Surface current'],2,'Wire: conduction. Gap: displacement.'],
+['11/06','4','Ideal parallel plates, separation d, voltage V. |E| = ?',['Vd','d/V','V/d','1/(Vd)'],2,'Uniform field: V = Ed.'],
+['11/06','5','Ideal capacitor C with voltage V(t). Its current is:',['i = CV','i = C dV/dt','i = V/C','i = C/V'],1,'Current ∝ rate of change of voltage.'],
+['11/06','6','If conduction current varies as sin(ωt), displacement current varies as:',['sin(ωt)','cos(ωt)','tan(ωt)','A constant'],1,'Time derivative of sin is ω cos.'],
+['11/06','7','The relative importance of conduction vs. displacement current depends strongly on:',['Conductivity and frequency','Mass and volume','Magnetic-field direction only','Surface area only'],0,'Ratio = σ/(ωε).'],
+['11/06','8','Which dimensionless expression compares conduction to displacement current density?',['σ/(ωε)','ωεσ','μ/(σε)','ωμσ'],0,'|J<sub>c</sub>|/|J<sub>d</sub>| = σ/(ωε).'],
+['11/06','9','The quantity σ/(ωε) is commonly called the:',['Reflection coefficient','Loss tangent','Refractive index','Wave impedance'],1,'tan δ = σ/(ωε).'],
+['11/06','10','If σ = 0, the conduction-current contribution:',['Becomes infinite','Equals displacement current','Becomes zero','Becomes purely magnetic'],2,'J<sub>c</sub> = σE = 0.'],
+['11/06','11','If σ/(ωε) ≫ 1, the medium behaves primarily as:',['A conductor','A perfect dielectric','A vacuum','A magnetic insulator'],0,'Conduction dominates.'],
+['11/06','12','If σ/(ωε) ≪ 1, which current dominates?',['Conduction','Displacement','Surface','Magnetic'],1,'The changing-E term wins → dielectric.'],
+['11/06','13','Why isn’t an EM disturbance observed instantly at a distant location?',['E fields can’t exist in free space','EM information travels at finite speed','Magnetic fields need wires','Displacement current only exists in capacitors'],1,'Delay Δt = r/u.'],
+['11/06','14','A propagation delay r/u changes cos(ωt) into:',['cos(ωt + r/u)','cos ω(t − r/u)','cos(ωr/u)','cos(t − ωu/r)'],1,'Replace t with t − r/u.'],
+['11/06','15','Using k = ω/u, a delayed harmonic variation can be written:',['cos(ωt − kr)','cos(ωt + kr)','cos(kr/ωt)','cos(ωkr)'],0,'ω(t − r/u) = ωt − kr.'],
+['11/06','16','In phasor form, which factor is propagation phase delay over distance r?',['e^(jωt)','e^(−jkr)','e^(−σr)','e^(jεr)'],1,'e^(−jkr) = phase accumulated along the path.'],
+['11/06','17','Conduction and displacement terms can be combined by defining a:',['Complex permeability','Complex conductivity only','Complex permittivity','Complex frequency'],2,'σE + jωεE = jωε<sub>c</sub>E, ε<sub>c</sub> = ε − jσ/ω.'],
+['11/06','Bonus','Seawater is a good conductor at low f but more like a dielectric at very high f. Why?',['σ drops to zero for any time-varying field','Displacement current grows with ω while conduction current doesn’t','Displacement current only exists in vacuum','Fast fields become static'],1,'σ/(ωε) falls as ω rises.'],
+['11/06','Bonus 2','Between the plates of a charging capacitor no charge crosses. Is there still a magnetic field there?',['No — no moving charges','Yes — the changing E acts like a current and produces circulating H','Only at the plate edges','Only if the dielectric conducts slightly'],1,'Displacement current ∂D/∂t gives H in the gap.'],
+['11/11','1','In a source-free region, Gauss’s law for E reduces to:',['∇·E = ρᵥ/ε','∇·E = 0','∇ × E = 0','∇²E = 0'],1,'No free charge, ρᵥ = 0.'],
+['11/11','2','Why can Maxwell’s equations be reduced to separate wave equations for E and H?',['E and H are independent','E and H are coupled through Maxwell’s equations','Magnetic fields vanish in free space','E is always constant'],1,'Curl one equation and substitute the other.'],
+['11/11','3','Which vector identity is used deriving the E wave equation?',['∇×(∇×E) = ∇(∇·E) − ∇²E','∇×(∇×E) = ∇²E','∇×(∇×E) = ∇·E','∇×(∇×E) = 0'],0,'“Curl curl = grad div − Laplacian.”'],
+['11/11','4','∇²E + k²E = 0 is called the:',['Poisson equation','Laplace equation','Wave (Helmholtz) equation','Continuity equation'],2,'Its solutions are propagating waves.'],
+['11/11','5','Why can the vector wave equation be split into three scalar equations?',['E has independent x, y, z components','E has no spatial dependence','E is always x-polarized','H is zero'],0,'Each component satisfies its own equation.'],
+['11/11','6','Plane wave traveling in z: which spatial variations are neglected?',['z only','x and y','x and z','y and z'],1,'Uniform in the transverse plane: ∂/∂x = ∂/∂y = 0.'],
+['11/11','7','The general solution of a 1-D wave equation contains:',['Only a forward wave','Only a backward wave','Forward- and backward-traveling waves','Only a standing wave'],2,'e^(−jkz) and e^(+jkz) terms.'],
+['11/11','8','The unit vector k̂ of a plane wave specifies:',['E magnitude','H magnitude','Direction of propagation','Attenuation only'],2,'k̂ is normal to the wavefront.'],
+['11/11','9','For a uniform plane wave, H relates to E by:',['H = η(k̂ × E)','H = (1/η)(k̂ × E)','H = ηE','H = σE'],1,'k̂ × E gives direction, 1/η the size.'],
+['11/11','10','η in the plane-wave E–H relationship is the:',['Propagation constant','Wave number','Intrinsic impedance','Loss tangent'],2,'η = E/H, in ohms.'],
+['11/11','11','E = ηH is analogous to which circuit relationship?',['KVL','Ohm’s law','Faraday’s law','Coulomb’s law'],1,'E ↔ V, H ↔ I, η ↔ Z.'],
+['11/11','12','For a plane wave, E, H and k̂ are:',['All parallel','Mutually perpendicular','E ∥ H','E ∥ k̂'],1,'E ⊥ H ⊥ k̂.'],
+['11/11','13','“Transverse” in TEM means:',['E and H are parallel to propagation','E and H are perpendicular to propagation','Only E propagates','Only H propagates'],1,'Both lie in the transverse plane.'],
+['11/11','14','Wave travels +z, E points +x. Direction of H?',['+x̂','−x̂','+ŷ','−ŷ'],2,'ẑ × x̂ = ŷ.'],
+['11/11','15','The propagation constant of a lossy medium is written:',['γ = α + jβ','γ = αβ','γ = α + β','γ = jα'],0,'α decay, β phase.'],
+['11/11','16','Lossless medium: γ is purely imaginary. Which parameter describes the phase variation?',['σ','η','k','α'],2,'γ = jβ = jk, k = 2π/λ.'],
+['11/11','17','What happens to a plane wave in a medium with nonzero conductivity?',['Amplitude grows with distance','Amplitude decreases with distance','Wavelength becomes zero','E and H become parallel'],1,'α &gt; 0 → e^(−αz) decay.'],
+['11/11','18','Given E for a plane wave, the most direct way to find H is:',['Re-derive Maxwell’s equations','Take two curls','Find k̂, use k̂ × E for direction, divide |E| by η','Differentiate E twice in time'],2,'No need to redo the curl equations.'],
+['11/11','Bonus','Free space, E = ŷ 3.77 cos(ωt − kz) V/m. H = ?',['x̂ 10 cos(ωt − kz) mA/m','−x̂ 100 cos(ωt − kz) mA/m','−x̂ 10 cos(ωt − kz) mA/m','ŷ 10 cos(ωt − kz) mA/m'],2,'ẑ × ŷ = −x̂; 3.77/377 = 10 mA/m.'],
+['11/13','1','In a lossy medium, the intrinsic impedance η is generally:',['Zero','Purely real','Complex','Purely imaginary'],2,'η = √(μ/ε<sub>c</sub>) with complex ε<sub>c</sub> → E and H out of phase.'],
+['11/13','2','What makes the permittivity complex in the lossy-medium treatment?',['Nonzero conductivity','Zero permeability','Zero frequency','Infinite wavelength'],0,'ε<sub>c</sub> = ε′ − jσ/ω.'],
+['11/13','3','The complex permittivity was written as:',['ε<sub>c</sub> = ε′ + jε″','ε<sub>c</sub> = ε′ − jε″','ε<sub>c</sub> = jε′ − ε″','ε<sub>c</sub> = ε′ε″'],1,'Minus j; ε″ is the loss.'],
+['11/13','4','For conduction loss, ε″ relates to conductivity by:',['ε″ = σω','ε″ = σ/ω','ε″ = ω/σ','ε″ = 1/(σω)'],1,'ε″ = σ/ω.'],
+['11/13','5','The loss tangent is:',['tan δ = ε′/ε″','tan δ = ε″/ε′','tan δ = ε′ + ε″','tan δ = ε′ε″'],1,'Loss part over storage part.'],
+['11/13','6','Which condition is a low-loss dielectric?',['ε″/ε′ ≪ 1','ε″/ε′ ≫ 1','ε′ = 0','ε″/ε′ = ∞'],0,'Small loss tangent.'],
+['11/13','7','Which condition is a good conductor?',['ε″/ε′ ≪ 1','ε″/ε′ ≫ 1','ε″ = 0','α = 0'],1,'Large loss tangent.'],
+['11/13','8','Why can the same material show different loss behavior at different frequencies?',['The speed of light changes','Loss tangent depends on frequency','Permeability becomes zero','Conductivity rises linearly with f'],1,'tan δ = σ/(ωε).'],
+['11/13','9','Skin depth δₛ is the distance over which the field amplitude falls to about:',['10%','36.8%','50%','63.2%'],1,'e⁻¹ ≈ 0.368.'],
+['11/13','10','The skin depth is related to α by:',['δₛ = α','δₛ = 1/α','δₛ = 2α','δₛ = 1/(2α)'],1,'e^(−αδₛ) = e⁻¹.'],
+['11/13','11','If α = 2 Np/m, the skin depth is:',['2 m','1 m','0.5 m','0.25 m'],2,'1/2 = 0.5 m.'],
+['11/13','12','If |E| varies as e^(−αz), power density varies as:',['e^(−αz)','e^(−2αz)','e^(−αz/2)','e^(−α²z)'],1,'Power ∝ |E|².'],
+['11/13','13','Penetration depth δₚ (power falls to 1/e) is:',['1/α','2/α','1/(2α)','α/2'],2,'2αδₚ = 1.'],
+['11/13','14','Compare skin depth and penetration depth:',['Identical','Skin depth uses field amplitude; penetration depth uses power density','Skin depth uses power; penetration depth uses amplitude','Neither depends on α'],1,'δₚ = δₛ/2.'],
+['11/13','15','Power density 8 W/m² at z = 0, α = 0.5 Np/m. Power density at z = 2 m?',['2.94 W/m²','1.08 W/m²','0.15 W/m²','4.85 W/m²'],1,'8e^(−2·0.5·2) = 8e⁻² ≈ 1.08. (2.94 forgets the 2.)'],
+['11/13','16','Ohm’s-law analogy E = ηH ↔ V = IZ. Correct pairing?',['E↔I, H↔V, η↔Z','E↔V, H↔I, η↔Z','E↔Z, H↔V, η↔I','E↔V, H↔Z, η↔I'],1,'E (V/m) ~ voltage, H (A/m) ~ current, η ~ impedance.'],
+['11/18','1','Before choosing an approximate expression for α, β or η in a lossy medium, what should you find first?',['Free-space wavelength','Loss tangent of the medium','Polarization','H direction'],1,'It tells you which approximation applies.'],
+['11/18','5','If a material is neither clearly low-loss nor a good conductor, which expressions should you use?',['Free-space','Low-loss approximations','Good-conductor approximations','General lossy-medium expressions'],3,'Between the limits, no shortcut is safe.'],
+['11/18','6','Why can one material be a good conductor at one frequency and a low-loss dielectric at another?',['μ changes sign with f','The loss tangent depends on frequency','σ must become zero at high f','Its impedance is always 377 Ω'],1,'σ/(ωε) depends on ω.'],
+['11/18','7','Good conductor: frequency ×4 makes α:',['Decrease ×4','Decrease ×2','Increase ×2','Increase ×4'],2,'α ∝ √f.'],
+['11/18','8','Good conductor: if α doubles, skin depth:',['Doubles','Is cut in half','×4','Unchanged'],1,'δ = 1/α.'],
+['11/18','10','|E| must be 1% of its value at z = 0. Which equation do you solve?',['e^(−αz) = 0.01','e^(−αz) = 0.1','e^(−2αz) = 0.01','αz = 0.01'],0,'Field ratio = e^(−αz).'],
+['11/18','12','The Poynting vector is defined as:',['E · H*','E × H*','E/H*','H*/E'],1,'Cross product → perpendicular to E and H.'],
+['11/18','13','What information does the Poynting vector give?',['Only frequency','Only |E|','Power density and direction of energy flow','Conductivity'],2,'Magnitude = W/m², direction = energy flow.'],
+['11/18','14','Why does ½ appear in time-average power with peak phasors?',['Half the power is in H','The wave loses half per wavelength','Average of cos²(ωt + φ) over a period is ½','E and H are orthogonal'],2,'⟨cos²⟩ = ½.'],
+['11/18','15','Polarization is defined by the behavior of which field?',['Magnetic field','Electric field','Poynting vector','Current density'],1,'Tip of E in the transverse plane.'],
+['11/18','16','Eₓ and Eᵧ in phase. The tip of E traces:',['A straight line','A circle','An ellipse only','Stays fixed'],0,'Linear polarization.'],
+['11/18','17','Equal amplitudes, ±90° phase difference:',['Linear','Circular','Unpolarized','Longitudinal'],1,'Tip traces a circle.'],
+['11/18','18','Unequal nonzero amplitudes, 90° phase difference:',['Linear','Circular','Elliptical','Not polarized'],2,'Tip traces an ellipse.'],
+['11/18','19','Which three quantities determine the polarization of E?',['α, β, η','ε, μ, σ','Eₓ amplitude, Eᵧ amplitude, and their phase difference','f, λ, u'],2,'Two amplitudes + relative phase.'],
+['11/18','20','Horizontally linear wave hits an ideally matched circularly polarized antenna. Fraction of power received?',['0%','25%','50%','100%'],2,'Linear = two opposite circular parts; antenna takes one (3 dB loss).'],
+];
+const L4='ABCD';
+WU.forEach(w=>D.push(['warm',`Warm-up ${w[0]} · Q${w[1]}`,`${w[2]}<ol class="opts">${w[3].map((o,k)=>`<li><b>${L4[k]}</b> ${o}</li>`).join('')}</ol>`,`<span class="big">${L4[w[4]]}. ${w[3][w[4]]}</span>${w[5]}`,w[0]]));
+const DATES=['10/09','10/14','11/04','11/06','11/11','11/13','11/18'];
+const DECKS=[['all','All'],['prob','Exam problems'],['short','Short answers'],['form','Formulas'],['warm','Warm-ups'],['sym','Symbols'],['sheet','Symbol sheet']];
+let wdate='all',deck='all',queue=[],pos=0,known=new Set(),pick={},mode='all';
+// keys: "i" for normal cards; "id" (definition) and "iu" (units) for symbol cards
+try{const s=JSON.parse(localStorage.getItem('em3-known')||'[]');s.forEach(i=>known.add(String(i)))}catch(e){}
+const save=()=>{try{localStorage.setItem('em3-known',JSON.stringify([...known]))}catch(e){}};
+const isSym=i=>D[i][0]==='sym';
+const okDef=i=>known.has(i+'d'),okUnit=i=>known.has(i+'u');
+const isKnown=i=>isSym(i)?okDef(i)&&okUnit(i):known.has(String(i));
+const forget=i=>{known.delete(String(i));known.delete(i+'d');known.delete(i+'u')};
+const ids=()=>D.map((c,i)=>i).filter(i=>(deck==='all'||D[i][0]===deck)&&(deck!=='warm'||wdate==='all'||D[i][4]===wdate));
+function sheet(){
+  $('count').textContent='Look-up sheet';$('known').textContent='';$('fill').style.width='0';
+  $('main').innerHTML=`<input id="find" type="search" placeholder="Search a symbol or word (e.g. skin, Ω, λ)" aria-label="Search symbols">
+  <div class="sheet"><table class="stack"><thead><tr><th>Symbol</th><th>Name</th><th>Units</th><th>What it means / when to use it</th></tr></thead><tbody id="rows"></tbody></table></div>`;
+  rows('');
+}
+function rows(q){
+  q=q.toLowerCase();let out='';
+  SYM.forEach(s=>{
+    if(!s[1]){if(!q)out+=`<tr class="grp"><td colspan="4">${s[0]}</td></tr>`;return}
+    const txt=(s.join(' ')).replace(/<[^>]+>/g,'').toLowerCase();
+    if(!q||txt.includes(q))out+=`<tr><td class="sy">${s[0]}</td><td>${s[1]}</td><td class="un">${s[2]}</td><td>${s[3]}</td></tr>`;
+  });
+  $('rows').innerHTML=out||'<tr><td colspan="4">No match — try another word.</td></tr>';
+  const L=['Symbol','Name','Units','Meaning'];
+  $('rows').querySelectorAll('tr:not(.grp)').forEach(r=>[...r.cells].forEach((c,i)=>{if(r.cells.length===4)c.dataset.l=L[i]}));
+}
+document.addEventListener('input',e=>{if(e.target.id==='find')rows(e.target.value.trim())});
+const $=id=>document.getElementById(id);
+function start(m){
+  mode=m||'all';const onlyMissed=mode==='missed';
+  if(mode==='def'||mode==='unit'){const all=ids().filter(i=>isSym(i)&&!(mode==='def'?okDef(i):okUnit(i)));if(all.length){queue=all;pos=0;render();return}mode='all'}
+  if(deck==='sheet'){queue=[];sheet();return}
+  const all=ids();queue=onlyMissed?all.filter(i=>!isKnown(i)):all.slice();
+  if(!queue.length){queue=all.slice();mode='all'}pos=0;render();
+}
+function chips(){
+  $('dates').innerHTML=deck!=='warm'?'':['all',...DATES].map(d=>`<button class="chip" data-w="${d}" aria-pressed="${d===wdate}">${d==='all'?'All warm-ups':d}<small>${D.filter(c=>c[0]==='warm'&&(d==='all'||c[4]===d)).length}</small></button>`).join('');
+  $('chips').innerHTML=DECKS.map(([k,n])=>{const c=k==='sheet'?SYM.filter(s=>s[1]).length:D.filter(d=>k==='all'||d[0]===k).length;return `<button class="chip" data-d="${k}" aria-pressed="${k===deck}">${n}<small>${c}</small></button>`}).join('');
+}
+function stats(){
+  const all=ids(),k=all.filter(isKnown).length;
+  $('fill').style.width=(all.length?k/all.length*100:0)+'%';
+  $('known').textContent=`${k}/${all.length} known`;
+  const lbl=mode==='def'?' · definitions':mode==='unit'?' · units':mode==='missed'?' · missed':'';
+  $('count').textContent=pos<queue.length?`Card ${pos+1} of ${queue.length}${lbl}`:'Round done';
+}
+function render(){
+  stats();
+  if(pos>=queue.length){
+    const all=ids(),left=all.filter(i=>!isKnown(i)).length;
+    const sy=all.filter(isSym),md=sy.filter(i=>!okDef(i)).length,mu=sy.filter(i=>!okUnit(i)).length;
+    $('main').innerHTML=`<div class="done"><h2>${left?'Round done':'You know them all!'}</h2><p>${left?`${left} card${left>1?'s':''} still to learn in this deck.`:'Every card in this deck is marked known. Go get that exam.'}</p>
+    ${sy.length&&(md||mu)?`<p class="tally"><span>Symbol definitions missed: <b>${md}</b></span><span>Symbol units missed: <b>${mu}</b></span></p>`:''}
+    <div class="row">${left?'<button class="pri" id="again">Review all missed cards</button>':''}${md?`<button id="revdef">Review missed definitions (${md})</button>`:''}${mu?`<button id="revunit">Review missed units (${mu})</button>`:''}<button id="restart">Start the deck over</button><button id="reset">Reset progress</button></div></div>`;
+    return;
+  }
+  const i=queue[pos],c=D[i],sym=isSym(i);
+  let q=c[2],a=c[3];
+  if(sym&&mode==='def')q=q.replace('What is this symbol, and what are its units?','What does this symbol stand for?');
+  if(sym&&mode==='unit')q=q.replace('What is this symbol, and what are its units?','What are its units?');
+  pick={};
+  const need=!sym?[]:mode==='def'?['d']:mode==='unit'?['u']:['d','u'];
+  const row=(k,label)=>`<div class="jrow"><span>${label}</span><button class="miss sm" data-p="${k}" data-v="0" aria-pressed="false">Missed</button><button class="got sm" data-p="${k}" data-v="1" aria-pressed="false">Got it ✓</button></div>`;
+  const judge=sym?`<div class="judge2">${need.includes('d')?row('d','Definition'):''}${need.includes('u')?row('u','Units'):''}</div>`
+    :`<div class="judge"><button class="miss" id="miss">Missed it</button><button class="got" id="got">Got it ✓</button></div>`;
+  $('main').innerHTML=`<div class="stage"><button class="card" id="card" aria-label="Flashcard, press to flip">
+    <div class="face front"><div class="tag">${c[1]}</div><div class="q">${q}</div><div class="hint">Tap to see the answer</div></div>
+    <div class="face back"><div class="tag">${c[1]} · answer</div><div class="a">${a}</div><div class="hint">Tap to flip back</div></div>
+  </button></div>${judge}
+  <div class="nav"><button id="prev">← Back</button><button id="shuf">Shuffle</button><button id="skip">Skip →</button></div>`;
+  $('main').dataset.need=need.join('');
+  fit();
+}
+function fit(){
+  const card=$('card');if(!card)return;
+  const f=card.querySelectorAll('.face');let h=0;
+  f.forEach(x=>{x.style.position='relative';h=Math.max(h,x.scrollHeight);x.style.position=''});
+  card.style.minHeight=Math.max(h,window.innerWidth<600?420:360)+'px';
+  f.forEach(x=>{x.style.position='absolute'});
+}
+function mark(ok){const i=String(queue[pos]);if(ok)known.add(i);else known.delete(i);save();pos++;render()}
+function markPart(k,ok,btn){
+  const i=queue[pos];pick[k]=ok;
+  if(ok)known.add(i+k);else known.delete(i+k);save();
+  btn.parentNode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===btn));
+  const need=$('main').dataset.need.split('');
+  if(need.every(n=>n in pick))setTimeout(()=>{pos++;render()},350);
+}
+function flip(){const c=$('card');if(c)c.classList.toggle('flip')}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.d){deck=t.dataset.d;chips();start();return}
+  if(t.dataset.w){wdate=t.dataset.w;chips();start();return}
+  if(t.dataset.p){markPart(t.dataset.p,t.dataset.v==='1',t);return}
+  switch(t.id){
+    case 'card':flip();break;
+    case 'got':mark(true);break;
+    case 'miss':mark(false);break;
+    case 'prev':if(pos>0){pos--;render()}break;
+    case 'skip':pos++;render();break;
+    case 'shuf':{const rest=queue.slice(pos);for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]]}queue=queue.slice(0,pos).concat(rest);render();break}
+    case 'again':start('missed');break;
+    case 'revdef':start('def');break;
+    case 'revunit':start('unit');break;
+    case 'restart':start();break;
+    case 'reset':ids().forEach(forget);save();start();break;
+  }
+});
+document.addEventListener('keydown',e=>{
+  if(deck==='sheet'||(e.target.closest&&e.target.closest('.chip,.nav,.done,input,.sub')))return;
+  if(e.key===' '){e.preventDefault();flip()}
+  else if(e.key==='1'&&$('card')&&!$('main').dataset.need)mark(false);
+  else if(e.key==='2'&&$('card')&&!$('main').dataset.need)mark(true);
+  else if(e.key==='ArrowRight'&&pos<queue.length){pos++;render()}
+  else if(e.key==='ArrowLeft'&&pos>0){pos--;render()}
+});
+const ro=new ResizeObserver(fit);ro.observe(document.body);
+chips();start();
+}
+</script>
+</body>
+</html>
